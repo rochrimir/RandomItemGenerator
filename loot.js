@@ -25,7 +25,7 @@ const penaltyStats = {
 
 function generateNegativeStat(type) {
   const stat = pickRandom(penaltyStats[type]);
-  const isPercentage = bonusStats.buff.concat(bonusStats.unique, bonusStats.skill).includes(stat);
+  const isPercentage = [...bonusStats.buff, ...bonusStats.unique, ...bonusStats.skill].includes(stat);
   const value = isPercentage ? -getRandomFloat(1, 10) : -getRandomInt(1, 10);
   return { stat, value, isPercentage, type };
 }
@@ -43,6 +43,12 @@ function generateLoot(rarity) {
   const totalStats = statCounts[rarity];
   let stats = [];
 
+  // Group roll (blessed: 35%, normal: 45%, cursed: 20%)
+  const groupRoll = Math.random();
+  let group = 'blessed';
+  if (groupRoll < 0.20) group = 'cursed';
+  else if (groupRoll < 0.65) group = 'normal';
+
   // Step 1: Generate primary stats
   while (stats.length < totalStats) {
     const stat = pickRandom(primaryStats);
@@ -51,7 +57,7 @@ function generateLoot(rarity) {
     }
   }
 
-  // Step 2: Bonus stats logic
+  // Step 2: Generate bonus stats (rarity-scaled)
   const bonusTypes = ['buff', 'unique', 'skill'];
   for (const type of bonusTypes) {
     const chance = Math.random();
@@ -65,41 +71,25 @@ function generateLoot(rarity) {
     if (chance < threshold) {
       const stat = pickRandom(bonusStats[type]);
       if (!stats.find(s => s.stat === stat)) {
-        const value = getRandomFloat(5, 15);
-        stats.push({ stat, value, isPercentage: true, type });
+        stats.push({ stat, value: getRandomFloat(5, 15), isPercentage: true, type });
       }
     }
   }
 
-  // Step 3: Add negative stat (1 max, replaces a primary)
-  let hasNegative = false;
-  const allowNegative = Math.random() < 0.3;
-  let negativeStat = null;
+  // Step 3: Apply penalty stat based on group
+  if (group !== 'blessed') {
+    const pool = group === 'normal' ? ['primary'] : ['buff', 'unique', 'skill'];
+    const penaltyType = pickRandom(pool);
+    const penalty = generateNegativeStat(penaltyType);
 
-  if (allowNegative) {
-    const typePool = ['primary', 'primary', 'buff', 'unique', 'skill'];
-    const type = pickRandom(typePool);
-    const candidate = generateNegativeStat(type);
-
-    if (!stats.find(s => s.stat === candidate.stat)) {
+    if (!stats.find(s => s.stat === penalty.stat)) {
+      // Replace one primary stat
       const replaceable = stats.filter(s => s.type === 'primary');
       if (replaceable.length > 0) {
         const toReplace = pickRandom(replaceable);
         stats = stats.filter(s => s !== toReplace);
-        stats.push(candidate);
-        negativeStat = candidate;
-        hasNegative = true;
+        stats.push(penalty);
       }
-    }
-  }
-
-  // Step 4: Determine group classification
-  let group = 'blessed';
-  if (hasNegative) {
-    if (['buff', 'unique', 'skill'].includes(negativeStat.type)) {
-      group = 'cursed';
-    } else {
-      group = 'normal';
     }
   }
 
