@@ -16,7 +16,7 @@ function generateItemName(rarity) {
 
 function renderLoginForm() {
   console.log("Rendering login form");
-  app.innerHTML = \`
+  app.innerHTML = `
     <div class="login-container">
       <h1>RPG Loot Store</h1>
       <input type="text" id="username" placeholder="Username" autocomplete="off" />
@@ -32,7 +32,7 @@ function renderLoginForm() {
         <a href="credits.html" target="_blank" style="color: #aaa; font-size: 12px;">Credits</a>
       </div>
     </div>
-  \`;
+  `;
   import('./auth.js');
   bindLogout();
   bindLanguageBtn();
@@ -66,8 +66,8 @@ function saveItemToCollection(username, item) {
 
 function renderLootGenerator(username) {
   console.log("Rendering loot generator for:", username);
-  app.innerHTML = \`
-    <h2>Welcome, \${username}!</h2>
+  app.innerHTML = `
+    <h2>Welcome, ${username}!</h2>
     <button id="generateBtn">Generate Loot</button>
     <button id="viewCollectionBtn">View Collection</button>
     <button id="logoutBtn">Log Out</button>
@@ -76,7 +76,7 @@ function renderLootGenerator(username) {
     <div style="text-align:center; margin-top:20px;">
       <a href="credits.html" target="_blank" style="color: #aaa; font-size: 12px;">Credits</a>
     </div>
-  \`;
+  `;
 
   document.getElementById('generateBtn').addEventListener('click', () => {
     const rarityPool = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Unique'];
