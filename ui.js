@@ -6,10 +6,10 @@ function renderItemDisplay(item) {
 
   const title = document.createElement('h2');
   title.textContent = `${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
-  title.className = `item-name ${item.rarity}`;
+  title.className = `item-name ${item.rarity.toLowerCase()}`; // Ensure rarity color class is applied
 
   const rarity = document.createElement('p');
-  rarity.className = `rarity-label ${item.rarity}`;
+  rarity.className = `rarity-label ${item.rarity.toLowerCase()}`;
   rarity.textContent = `${capitalize(item.rarity)}${item.isCursed ? ' (Cursed)' : ''}`;
 
   const statsList = document.createElement('ul');
