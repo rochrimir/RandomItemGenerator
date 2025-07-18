@@ -40,7 +40,7 @@ function generateLoot(rarity) {
     unique: 8
   };
 
-  const totalStats = statCounts[rarity];
+  const primaryCount = statCounts[rarity];
   let stats = [];
 
   // Group roll (blessed: 35%, normal: 45%, cursed: 20%)
@@ -50,17 +50,21 @@ function generateLoot(rarity) {
   else if (groupRoll < 0.65) group = 'normal';
 
   // Step 1: Generate primary stats
-  while (stats.length < totalStats) {
+  while (stats.filter(s => s.type === 'primary').length < primaryCount) {
     const stat = pickRandom(primaryStats);
     if (!stats.find(s => s.stat === stat)) {
-      stats.push({ stat, value: getRandomInt(1, 20), isPercentage: false, type: 'primary' });
+      stats.push({
+        stat,
+        value: getRandomInt(5, 20),
+        isPercentage: false,
+        type: 'primary'
+      });
     }
   }
 
-  // Step 2: Generate bonus stats (rarity-scaled)
+  // Step 2: Add bonus stats (up to 1 of each type)
   const bonusTypes = ['buff', 'unique', 'skill'];
   for (const type of bonusTypes) {
-    const chance = Math.random();
     const threshold = {
       rare: 0.3,
       epic: 0.4,
@@ -68,26 +72,35 @@ function generateLoot(rarity) {
       unique: 0.8
     }[rarity] || 0.15;
 
-    if (chance < threshold) {
+    if (Math.random() < threshold) {
       const stat = pickRandom(bonusStats[type]);
       if (!stats.find(s => s.stat === stat)) {
-        stats.push({ stat, value: getRandomFloat(5, 15), isPercentage: true, type });
+        stats.push({
+          stat,
+          value: getRandomFloat(5, 15),
+          isPercentage: true,
+          type
+        });
       }
     }
   }
 
-  // Step 3: Apply penalty stat based on group
+  // Step 3: Add penalty stat if not blessed
   if (group !== 'blessed') {
     const pool = group === 'normal' ? ['primary'] : ['buff', 'unique', 'skill'];
     const penaltyType = pickRandom(pool);
     const penalty = generateNegativeStat(penaltyType);
 
     if (!stats.find(s => s.stat === penalty.stat)) {
-      // Replace one primary stat
-      const replaceable = stats.filter(s => s.type === 'primary');
-      if (replaceable.length > 0) {
-        const toReplace = pickRandom(replaceable);
-        stats = stats.filter(s => s !== toReplace);
+      // Replace one primary stat if it's a primary penalty
+      if (penalty.type === 'primary') {
+        const replaceable = stats.filter(s => s.type === 'primary');
+        if (replaceable.length > 0) {
+          const toReplace = pickRandom(replaceable);
+          stats = stats.filter(s => s !== toReplace);
+          stats.push(penalty);
+        }
+      } else {
         stats.push(penalty);
       }
     }
