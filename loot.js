@@ -109,3 +109,5 @@ function generateLoot(rarity) {
     isCursed
   };
 }
+
+export { generateLoot };
