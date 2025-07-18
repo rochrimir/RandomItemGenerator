@@ -1,3 +1,4 @@
+
 function applyRarityColor(rarity, element) {
   const colorMap = {
     Common: '#ccc',
@@ -15,12 +16,12 @@ function renderGeneratedItem(item, container) {
 
   const title = document.createElement('h2');
   title.textContent = `${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
+  title.classList.add('item-name');
   applyRarityColor(item.rarity, title);
 
   const rarity = document.createElement('p');
   rarity.textContent = item.rarity;
-  applyRarityColor(item.rarity, rarity);
-  rarity.classList.add('rarity-label');
+  rarity.classList.add('rarity-label', item.rarity.toLowerCase());
 
   const statList = document.createElement('ul');
   item.stats.forEach(stat => {
