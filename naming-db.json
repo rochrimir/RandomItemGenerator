@@ -1,0 +1,107 @@
+{
+  "primary_stats": [
+    "strength",
+    "agility",
+    "intelligence"
+  ],
+  "unique_stats": [
+    "lifesteal",
+    "evasion"
+  ],
+  "buff_stats": [
+    "resistance to fire",
+    "resistance to ice"
+  ],
+  "skill_stats": [
+    "cooldown reduction",
+    "mana regen"
+  ],
+  "stat_ranges": {
+    "strength": {
+      "common": [
+        1,
+        10
+      ],
+      "uncommon": [
+        5,
+        15
+      ],
+      "rare": [
+        10,
+        20
+      ]
+    },
+    "agility": {
+      "common": [
+        1,
+        10
+      ],
+      "uncommon": [
+        5,
+        15
+      ],
+      "rare": [
+        10,
+        20
+      ]
+    },
+    "intelligence": {
+      "common": [
+        1,
+        10
+      ],
+      "uncommon": [
+        5,
+        15
+      ],
+      "rare": [
+        10,
+        20
+      ]
+    },
+    "lifesteal": {
+      "rare": [
+        5,
+        10
+      ],
+      "epic": [
+        10,
+        20
+      ]
+    },
+    "evasion": {
+      "rare": [
+        5,
+        10
+      ],
+      "epic": [
+        10,
+        20
+      ]
+    },
+    "resistance to fire": {
+      "rare": [
+        10,
+        25
+      ]
+    },
+    "resistance to ice": {
+      "rare": [
+        10,
+        25
+      ]
+    },
+    "cooldown reduction": {
+      "epic": [
+        5,
+        15
+      ]
+    },
+    "mana regen": {
+      "epic": [
+        5,
+        15
+      ]
+    }
+  }
+}

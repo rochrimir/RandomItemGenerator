@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RPG Loot Store Login</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="login-body">
+  <div class="login-container">
+    <h2>Welcome to RPG Loot Store</h2>
+    <input type="text" id="login-username" placeholder="Username" />
+    <input type="password" id="login-password" placeholder="Password" />
+    <div class="login-buttons">
+      <button onclick="handleLogin(document.getElementById('login-username').value, document.getElementById('login-password').value)">Log In</button>
+      <button onclick="handleSignup(document.getElementById('login-username').value, document.getElementById('login-password').value)">Sign Up</button>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+
+@font-face {
+  font-family: 'Jersey25';
+  src: url('Jersey25-Regular.ttf') format('truetype');
+}
+
+body {
+  font-family: 'Jersey25', sans-serif;
+  background-color: #111;
+  color: #fff;
+  margin: 0;
+  padding: 20px;
+}
+
+.login-container {
+  max-width: 300px;
+  margin: 100px auto;
+  background-color: #222;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.login-container h1 {
+  margin-bottom: 20px;
+}
+
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.button-row button {
+  flex: 1;
+}
+
+button {
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.rarity-label {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.badge {
+  background-color: red;
+  color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+.new-label {
+  color: gold;
+  font-size: 12px;
+  margin-left: 10px;
+  display: inline;
+}
+
+.item-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Rarity colors */
+.common { color: #ccc; }
+.uncommon { color: #3fa34d; }
+.rare { color: #3380cc; }
+.epic { color: #a33fd1; }
+.legendary { color: #d1a33f; }
+.unique { color: #ff5050; }
