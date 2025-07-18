@@ -14,23 +14,25 @@ function renderItemDisplay(item) {
 
   const statsList = document.createElement('ul');
 
-  const order = ['primary', 'buff', 'unique', 'skill'];
-  for (const type of order) {
-    const positives = item.stats.filter(s => s.type === type && s.value > 0);
-    const negatives = item.stats.filter(s => s.type === type && s.value < 0);
+  if (item.stats && Array.isArray(item.stats)) {
+    const order = ['primary', 'buff', 'unique', 'skill'];
+    for (const type of order) {
+      const positives = item.stats.filter(s => s.type === type && s.value > 0);
+      const negatives = item.stats.filter(s => s.type === type && s.value < 0);
 
-    for (const statObj of positives) {
-      const li = document.createElement('li');
-      const valueStr = statObj.isPercentage ? `+${statObj.value}%` : `+${statObj.value}`;
-      li.textContent = `${valueStr} - ${statObj.stat}`;
-      statsList.appendChild(li);
-    }
+      for (const statObj of positives) {
+        const li = document.createElement('li');
+        const valueStr = statObj.isPercentage ? `+${statObj.value}%` : `+${statObj.value}`;
+        li.textContent = `${valueStr} - ${statObj.stat}`;
+        statsList.appendChild(li);
+      }
 
-    for (const statObj of negatives) {
-      const li = document.createElement('li');
-      const valueStr = statObj.isPercentage ? `${statObj.value}%` : `${statObj.value}`;
-      li.textContent = `${valueStr} - ${statObj.stat}`;
-      statsList.appendChild(li);
+      for (const statObj of negatives) {
+        const li = document.createElement('li');
+        const valueStr = statObj.isPercentage ? `${statObj.value}%` : `${statObj.value}`;
+        li.textContent = `${valueStr} - ${statObj.stat}`;
+        statsList.appendChild(li);
+      }
     }
   }
 
