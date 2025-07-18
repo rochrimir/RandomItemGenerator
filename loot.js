@@ -110,10 +110,9 @@ function generateLoot(rarity) {
   };
 }
 
-// Alias for compatibility
-const generateStats = generateLoot;
-
-export { generateLoot, generateStats };
+function generateStats(rarity) {
+  return generateLoot(rarity);
+}
 
 function initializeLoot() {
   console.log("Loot system initialized.");
