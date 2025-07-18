@@ -1,7 +1,7 @@
 // ui.js
 
 function renderItemDisplay(item) {
-  const displayBox = document.getElementById('item-display');
+  const displayBox = document.getElementById('itemDisplay');
   displayBox.innerHTML = '';
 
   const title = document.createElement('h2');
