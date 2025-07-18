@@ -50,15 +50,17 @@ function generateLoot(rarity) {
   else if (groupRoll < 0.65) group = 'normal';
 
   // Step 1: Generate primary stats
+  let usedStats = new Set();
   while (stats.filter(s => s.type === 'primary').length < primaryCount) {
     const stat = pickRandom(primaryStats);
-    if (!stats.find(s => s.stat === stat)) {
+    if (!usedStats.has(stat)) {
       stats.push({
         stat,
         value: getRandomInt(5, 20),
         isPercentage: false,
         type: 'primary'
       });
+      usedStats.add(stat);
     }
   }
 
@@ -92,13 +94,25 @@ function generateLoot(rarity) {
     const penalty = generateNegativeStat(penaltyType);
 
     if (!stats.find(s => s.stat === penalty.stat)) {
-      // Replace one primary stat if it's a primary penalty
-      if (penalty.type === 'primary') {
-        const replaceable = stats.filter(s => s.type === 'primary');
-        if (replaceable.length > 0) {
-          const toReplace = pickRandom(replaceable);
+      if (penaltyType === 'primary') {
+        const primaryStatsOnly = stats.filter(s => s.type === 'primary');
+        if (primaryStatsOnly.length > 0) {
+          const toReplace = pickRandom(primaryStatsOnly);
           stats = stats.filter(s => s !== toReplace);
           stats.push(penalty);
+
+          // Ensure primary stat count remains correct
+          while (stats.filter(s => s.type === 'primary').length < primaryCount) {
+            const stat = pickRandom(primaryStats);
+            if (!stats.find(s => s.stat === stat)) {
+              stats.push({
+                stat,
+                value: getRandomInt(5, 20),
+                isPercentage: false,
+                type: 'primary'
+              });
+            }
+          }
         }
       } else {
         stats.push(penalty);
