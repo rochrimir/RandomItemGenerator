@@ -81,8 +81,10 @@ function renderLootGenerator(username) {
   document.getElementById('generateBtn').addEventListener('click', () => {
     const rarityPool = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Unique'];
     const rarity = rarityPool[Math.floor(Math.random() * rarityPool.length)];
-    const item = generateStats(rarity);
-    item.name = generateItemName(rarity);
+
+    const item = generateStats(rarity); // Full loot object
+    item.name = generateItemName(rarity); // Overwrite name only
+
     const container = document.getElementById('itemDisplay');
     renderGeneratedItem(item, container);
     saveItemToCollection(username, item);
