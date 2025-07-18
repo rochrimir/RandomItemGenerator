@@ -26,9 +26,10 @@ function renderLoginForm() {
         <button id="signupBtn">Sign Up</button>
         <button id="languageBtn">Language</button>
       </div>
-      <div style="text-align:center; margin-top:15px;">
+      <div style="text-align:center; margin-top:20px;">
         <button id="logoutBtn">Log Out</button>
-        <br/>
+      </div>
+      <div style="text-align:center; margin-top:20px;">
         <a href="credits.html" target="_blank" style="color: #aaa; font-size: 12px;">Credits</a>
       </div>
     </div>
@@ -73,7 +74,7 @@ function renderLootGenerator(username) {
     <button id="logoutBtn">Log Out</button>
     <div id="itemDisplay" style="margin-top: 20px;"></div>
     <div id="historyLog" style="margin-top: 20px;"></div>
-    <div style="text-align:center; margin-top:20px;">
+    <div style="text-align:center; margin-top:30px;">
       <a href="credits.html" target="_blank" style="color: #aaa; font-size: 12px;">Credits</a>
     </div>
   `;
@@ -104,7 +105,7 @@ function renderLootGenerator(username) {
 function addToHistory(username, item) {
   const logBox = document.getElementById('historyLog');
   if (!logBox) return;
-  const refine = item.refine > 0 ? ` +${item.refine}` : '';
+  const refine = ` +${item.refine}`;
   const entry = document.createElement('p');
   entry.textContent = `${username} generated [${item.rarity}] ${item.name}${refine}`;
   logBox.prepend(entry);
