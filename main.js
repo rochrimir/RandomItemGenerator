@@ -58,7 +58,7 @@ function bindLogout() {
 }
 
 function saveItemToCollection(username, item) {
-  const key = \`collection_\${username}\`;
+  const key = `collection_${username}`;
   const data = JSON.parse(localStorage.getItem(key)) || [];
   data.push({ ...item, isNew: true });
   localStorage.setItem(key, JSON.stringify(data));
@@ -104,9 +104,9 @@ function renderLootGenerator(username) {
 function addToHistory(username, item) {
   const logBox = document.getElementById('historyLog');
   if (!logBox) return;
-  const refine = item.refine > 0 ? \` +\${item.refine}\` : '';
+  const refine = item.refine > 0 ? ` +${item.refine}` : '';
   const entry = document.createElement('p');
-  entry.textContent = \`\${username} generated [\${item.rarity}] \${item.name}\${refine}\`;
+  entry.textContent = `${username} generated [${item.rarity}] ${item.name}${refine}`;
   logBox.prepend(entry);
   if (logBox.children.length > 5) logBox.removeChild(logBox.lastChild);
 }
