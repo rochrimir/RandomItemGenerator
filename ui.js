@@ -6,11 +6,11 @@ function renderItemDisplay(item) {
 
   const title = document.createElement('h2');
   title.textContent = `${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
-  title.className = `item-name ${item.rarity.toLowerCase()}`; // Ensure rarity color class is applied
+  title.className = `item-name ${item.rarity.toLowerCase()}`;
 
   const rarity = document.createElement('p');
   rarity.className = `rarity-label ${item.rarity.toLowerCase()}`;
-  rarity.textContent = `${capitalize(item.rarity)}${item.isCursed ? ' (Cursed)' : ''}`;
+  rarity.textContent = `${capitalize(item.rarity)}${item.group === 'cursed' ? ' (Cursed)' : item.group === 'blessed' ? ' (Blessed)' : ''}`;
 
   const statsList = document.createElement('ul');
 
@@ -19,19 +19,19 @@ function renderItemDisplay(item) {
     const positives = item.stats.filter(s => s.type === type && s.value > 0);
     const negatives = item.stats.filter(s => s.type === type && s.value < 0);
 
-    positives.forEach(statObj => {
+    for (const statObj of positives) {
       const li = document.createElement('li');
       const valueStr = statObj.isPercentage ? `+${statObj.value}%` : `+${statObj.value}`;
       li.textContent = `${valueStr} - ${statObj.stat}`;
       statsList.appendChild(li);
-    });
+    }
 
-    negatives.forEach(statObj => {
+    for (const statObj of negatives) {
       const li = document.createElement('li');
       const valueStr = statObj.isPercentage ? `${statObj.value}%` : `${statObj.value}`;
       li.textContent = `${valueStr} - ${statObj.stat}`;
       statsList.appendChild(li);
-    });
+    }
   }
 
   displayBox.appendChild(title);
