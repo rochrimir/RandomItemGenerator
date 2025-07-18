@@ -1,4 +1,3 @@
-
 import './auth.js';
 import { renderGeneratedItem } from './ui.js';
 import { generateStats, initializeLoot } from './loot.js';
@@ -82,13 +81,8 @@ function renderLootGenerator(username) {
   document.getElementById('generateBtn').addEventListener('click', () => {
     const rarityPool = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Unique'];
     const rarity = rarityPool[Math.floor(Math.random() * rarityPool.length)];
-    const stats = generateStats(rarity);
-    const item = {
-      name: generateItemName(rarity),
-      rarity,
-      refine: Math.floor(Math.random() * 11),
-      stats
-    };
+    const item = generateStats(rarity);
+    item.name = generateItemName(rarity);
     const container = document.getElementById('itemDisplay');
     renderGeneratedItem(item, container);
     saveItemToCollection(username, item);
@@ -105,7 +99,7 @@ function renderLootGenerator(username) {
 function addToHistory(username, item) {
   const logBox = document.getElementById('historyLog');
   if (!logBox) return;
-  const refine = ` +${item.refine}`;
+  const refine = item.refine > 0 ? ` +${item.refine}` : '';
   const entry = document.createElement('p');
   entry.textContent = `${username} generated [${item.rarity}] ${item.name}${refine}`;
   logBox.prepend(entry);
