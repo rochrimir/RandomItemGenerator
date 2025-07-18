@@ -12,11 +12,13 @@ window.onload = () => {
     });
   }
 
+  const container = document.getElementById('collectionContainer');
+  if (!container) return;
+
   const collectionKey = `collection_${username}`;
   const collectionData = JSON.parse(localStorage.getItem(collectionKey)) || [];
 
   const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'unique'];
-  const container = document.getElementById('collectionContainer');
 
   rarityOrder.forEach(rarity => {
     const group = document.createElement('div');
@@ -25,6 +27,7 @@ window.onload = () => {
     const header = document.createElement('h3');
     header.textContent = rarity.charAt(0).toUpperCase() + rarity.slice(1);
     header.className = `rarity-header ${rarity}`;
+    group.appendChild(header);
 
     const list = document.createElement('ul');
     list.className = 'item-list';
@@ -52,7 +55,6 @@ window.onload = () => {
       list.appendChild(li);
     });
 
-    group.appendChild(header);
     group.appendChild(list);
     container.appendChild(group);
   });
