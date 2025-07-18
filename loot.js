@@ -110,4 +110,7 @@ function generateLoot(rarity) {
   };
 }
 
-export { generateLoot };
+// Alias for compatibility
+const generateStats = generateLoot;
+
+export { generateLoot, generateStats };
