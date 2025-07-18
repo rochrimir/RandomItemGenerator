@@ -1,53 +1,44 @@
+// ui.js
 
-function applyRarityColor(rarity, element) {
-  const colorMap = {
-    Common: '#ccc',
-    Uncommon: '#3fa34d',
-    Rare: '#3380cc',
-    Epic: '#a33fd1',
-    Legendary: '#d1a33f',
-    Unique: '#ff5050'
-  };
-  element.style.color = colorMap[rarity] || '#fff';
-}
-
-function renderGeneratedItem(item, container) {
-  container.innerHTML = '';
+function renderItemDisplay(item) {
+  const displayBox = document.getElementById('item-display');
+  displayBox.innerHTML = '';
 
   const title = document.createElement('h2');
-
-  const nameSpan = document.createElement('span');
-  nameSpan.classList.add('item-name');
-  nameSpan.textContent = item.name;
-
-  const refineSpan = document.createElement('span');
-  refineSpan.classList.add('refine-level');
-  refineSpan.textContent = ` +${item.refine}`;
-
-  title.appendChild(nameSpan);
-  title.appendChild(refineSpan);
-  applyRarityColor(item.rarity, title);
+  title.textContent = `${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
+  title.className = `item-name ${item.rarity}`;
 
   const rarity = document.createElement('p');
-  rarity.textContent = item.rarity;
-  rarity.classList.add('rarity-label', item.rarity.toLowerCase());
+  rarity.className = `rarity-label ${item.rarity}`;
+  rarity.textContent = `${capitalize(item.rarity)}${item.isCursed ? ' (Cursed)' : ''}`;
 
-  const statList = document.createElement('ul');
-  item.stats.forEach(stat => {
-    const li = document.createElement('li');
-    li.textContent = stat;
-    statList.appendChild(li);
-  });
+  const statsList = document.createElement('ul');
 
-  container.appendChild(title);
-  container.appendChild(rarity);
-  container.appendChild(statList);
+  const order = ['primary', 'buff', 'unique', 'skill'];
+  for (const type of order) {
+    const positives = item.stats.filter(s => s.type === type && s.value > 0);
+    const negatives = item.stats.filter(s => s.type === type && s.value < 0);
+
+    positives.forEach(statObj => {
+      const li = document.createElement('li');
+      const valueStr = statObj.isPercentage ? `+${statObj.value}%` : `+${statObj.value}`;
+      li.textContent = `${valueStr} - ${statObj.stat}`;
+      statsList.appendChild(li);
+    });
+
+    negatives.forEach(statObj => {
+      const li = document.createElement('li');
+      const valueStr = statObj.isPercentage ? `${statObj.value}%` : `${statObj.value}`;
+      li.textContent = `${valueStr} - ${statObj.stat}`;
+      statsList.appendChild(li);
+    });
+  }
+
+  displayBox.appendChild(title);
+  displayBox.appendChild(rarity);
+  displayBox.appendChild(statsList);
 }
 
-function renderHistoryEntry(entry) {
-  const item = entry.item;
-  const refine = ` +${item.refine}`;
-  return `${entry.username} generated [${item.rarity}] ${item.name}${refine}`;
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
-
-export { renderGeneratedItem, renderHistoryEntry };
