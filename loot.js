@@ -1,124 +1,111 @@
-import { getRandomFromArray, getRandomInt } from './utils.js';
+// loot.js
 
-let namingData = null;
-
-const percentageStats = [
-  'lifesteal', 'evasion', 'cooldown reduction',
-  'resistance to fire', 'resistance to ice', 'resistance to bleed',
-  'resistance to physical', 'resistance to lightning', 'resistance to poison'
-];
-
-async function initializeLoot() {
-  const response = await fetch('./naming-db.json');
-  namingData = await response.json();
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function getStatValue(stat, rarity) {
-  let range = [5, 15];
+function getRandomFloat(min, max, decimals = 2) {
+  return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
+}
 
-  if (namingData.stat_ranges) {
-    const group = namingData.stat_ranges[stat];
-    if (group) {
-      range = group[rarity.toLowerCase()] || range;
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// Mirrored Penalty Stat Pool
+const penaltyStats = {
+  primary: ['strength', 'dexterity', 'intelligence', 'vitality', 'defense'],
+  buff: ['attack speed', 'movement speed', 'cooldown reduction', 'resistance to fire damage', 'resistance to bleed'],
+  unique: ['lifesteal', 'critical chance', 'critical damage'],
+  skill: ['mana cost', 'cast speed', 'skill duration']
+};
+
+function generateNegativeStat(type) {
+  const stat = pickRandom(penaltyStats[type]);
+  const isPercentage = ['lifesteal', 'attack speed', 'movement speed', 'cooldown reduction', 'mana cost', 'cast speed', 'skill duration', 'critical chance', 'critical damage', 'resistance to fire damage', 'resistance to bleed'].includes(stat);
+  const value = isPercentage
+    ? -getRandomFloat(1, 10)
+    : -getRandomInt(1, 10);
+  return { stat, value, isPercentage, type };
+}
+
+function generateLoot(rarity) {
+  const statCounts = {
+    common: 3,
+    uncommon: 4,
+    rare: 5,
+    epic: 6,
+    legendary: 7,
+    unique: 8
+  };
+
+  const primaryStats = ['strength', 'dexterity', 'intelligence', 'vitality', 'defense'];
+  const bonusStats = {
+    buff: ['attack speed', 'movement speed', 'cooldown reduction', 'resistance to fire damage', 'resistance to bleed'],
+    unique: ['lifesteal', 'critical chance', 'critical damage'],
+    skill: ['mana cost', 'cast speed', 'skill duration']
+  };
+
+  const totalStats = statCounts[rarity];
+  let stats = [];
+
+  // Step 1: Generate primary stats
+  while (stats.length < totalStats) {
+    const stat = pickRandom(primaryStats);
+    if (!stats.find(s => s.stat === stat)) {
+      const value = getRandomInt(1, 20);
+      stats.push({ stat, value, isPercentage: false, type: 'primary' });
     }
   }
 
-  const min = Math.max(range[0], 1);
-  const max = range[1];
-  return getRandomInt(min, max);
-}
-
-function formatStat(stat, value) {
-  const sign = value >= 0 ? '+' : '-';
-  const absValue = Math.abs(value);
-  const suffix = percentageStats.includes(stat.toLowerCase()) ? '%' : '';
-  return `${sign}${absValue}${suffix} - ${stat}`;
-}
-
-
-function generateItemName(rarity) {
-  const adjectives = ["Ancient", "Cursed", "Glorious", "Vicious", "Shimmering"];
-  const items = ["Sword", "Axe", "Bow", "Dagger", "Amulet", "Cloak"];
-  return getRandomFromArray(adjectives) + " " + getRandomFromArray(items);
-}
-
-function generateStats(rarity) {
-
-  let stats = []; const usedStats = new Set(); let attempts = 0;
-  const baseStats = [...namingData.primary_stats];
-  const uniquePool = [...namingData.unique_stats];
-  const buffPool = [...namingData.buff_stats];
-  const skillPool = [...namingData.skill_stats];
-
-  let primaryCount = {
-    Common: 3,
-    Uncommon: 4,
-    Rare: 5,
-    Epic: 6,
-    Legendary: 7,
-    Unique: 8
-  }[rarity];
-
-  let uniqueCount = {
-    Rare: 1,
-    Epic: 2,
-    Legendary: 3,
-    Unique: 4
-  }[rarity] || 0;
-
-  let buffCount = {
-    Legendary: 1,
-    Unique: 2
-  }[rarity] || 0;
-
-  for (let i = 0; i < primaryCount; i++) {
-    const stat = getRandomFromArray(baseStats);
-    const value = getStatValue(stat, rarity);
-    if (!usedStats.has(stat)) { stats.push(formatStat(stat, value)); usedStats.add(stat); }
+  // Step 2: Try bonus stat generation
+  const bonusTypes = ['buff', 'unique', 'skill'];
+  for (const type of bonusTypes) {
+    const chance = Math.random();
+    const threshold = ['rare', 'epic', 'legendary', 'unique'].includes(rarity) ? 0.3 : 0.15;
+    if (chance < threshold) {
+      const stat = pickRandom(bonusStats[type]);
+      if (!stats.find(s => s.stat === stat)) {
+        const isPercentage = true;
+        const value = getRandomFloat(5, 15);
+        stats.push({ stat, value, isPercentage, type });
+      }
+    }
   }
 
-  for (let i = 0; i < uniqueCount; i++) {
-    const stat = getRandomFromArray(uniquePool);
-    const value = getStatValue(stat, rarity);
-    if (!usedStats.has(stat)) { stats.push(formatStat(stat, value)); usedStats.add(stat); }
+  // Step 3: Possibly add a negative stat
+  let isCursed = false;
+  const allowNegative = Math.random() < 0.25; // 25% chance
+  if (allowNegative) {
+    const penaltyTypeWeights = ['primary', 'primary', 'buff', 'unique', 'skill']; // Weighted
+    const penaltyType = pickRandom(penaltyTypeWeights);
+    const negative = generateNegativeStat(penaltyType);
+
+    // Ensure no duplicate stat type
+    if (!stats.find(s => s.stat === negative.stat)) {
+      // Replace one of the existing primary stats randomly
+      const replaceable = stats.filter(s => s.type === 'primary');
+      if (replaceable.length > 0) {
+        const toReplace = pickRandom(replaceable);
+        stats = stats.filter(s => s !== toReplace);
+        stats.push(negative);
+
+        // Check if cursed
+        if (stats.find(s => s.stat === negative.stat && s.value > 0)) {
+          isCursed = true;
+        }
+      }
+    }
   }
 
-  for (let i = 0; i < buffCount; i++) {
-    const stat = getRandomFromArray(buffPool);
-    const value = getStatValue(stat, rarity);
-    if (!usedStats.has(stat)) { stats.push(formatStat(stat, value)); usedStats.add(stat); }
-  }
+  // Step 4: Assign refine
+  const refine = Math.random() < 0.5 ? getRandomInt(1, 10) : 0;
 
-  if (Math.random() < 0.3) {
-    const bonusPools = [buffPool, uniquePool, skillPool];
-    const pool = getRandomFromArray(bonusPools);
-    const stat = getRandomFromArray(pool);
-    let base = getStatValue(stat, rarity);
-    let bonusMultiplier = {
-      Common: [1, 3],
-      Uncommon: [1, 3],
-      Rare: [2, 5],
-      Epic: [5, 7]
-    }[rarity] || [0, 0];
-
-    const bonus = Math.floor(base * (getRandomInt(...bonusMultiplier) / 100));
-    const value = base + bonus;
-    if (!usedStats.has(stat)) { stats.push(formatStat(stat, value)); usedStats.add(stat); }
-  }
-
-  
-while (stats.length < primaryCount + uniqueCount + buffCount) {
-  const allPools = [...baseStats, ...uniquePool, ...buffPool];
-  const stat = getRandomFromArray(allPools);
-  const value = getStatValue(stat, rarity);
-  if (!usedStats.has(stat)) {
-    stats.push(formatStat(stat, value));
-    usedStats.add(stat);
-  }
-  if (++attempts > 50) break;
+  return {
+    name: 'Generated Item',
+    rarity,
+    refine,
+    stats,
+    isCursed
+  };
 }
-return stats;
-
-}
-
-export { initializeLoot, generateStats };
