@@ -1,7 +1,7 @@
-// ui.js
+function renderItemDisplay(item, container = null) {
+  const displayBox = container || document.getElementById('itemDisplay');
+  if (!displayBox) return;
 
-function renderItemDisplay(item) {
-  const displayBox = document.getElementById('itemDisplay');
   displayBox.innerHTML = '';
 
   const title = document.createElement('h2');
@@ -36,9 +36,16 @@ function renderItemDisplay(item) {
     }
   }
 
+  const reprintBtn = document.createElement('button');
+  reprintBtn.textContent = 'Re-print';
+  reprintBtn.addEventListener('click', () => {
+    renderItemDisplay(item, displayBox);
+  });
+
   displayBox.appendChild(title);
   displayBox.appendChild(rarity);
   displayBox.appendChild(statsList);
+  displayBox.appendChild(reprintBtn);
 }
 
 function capitalize(str) {
