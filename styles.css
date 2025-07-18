@@ -20,6 +20,7 @@ body, input, button {
 
 .item-name, .refine-level {
   font-family: 'Karmatic Arcade', monospace;
+  text-shadow: 0 0 2px white;
 }
 
 .login-container {
