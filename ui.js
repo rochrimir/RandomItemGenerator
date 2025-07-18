@@ -15,8 +15,19 @@ function renderGeneratedItem(item, container) {
   container.innerHTML = '';
 
   const title = document.createElement('h2');
-  title.textContent = `${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
-  title.classList.add('item-name');
+
+  const nameSpan = document.createElement('span');
+  nameSpan.classList.add('item-name');
+  nameSpan.textContent = item.name;
+
+  const refineSpan = document.createElement('span');
+  refineSpan.classList.add('refine-level');
+  if (item.refine > 0) {
+    refineSpan.textContent = ' +' + item.refine;
+  }
+
+  title.appendChild(nameSpan);
+  if (item.refine > 0) title.appendChild(refineSpan);
   applyRarityColor(item.rarity, title);
 
   const rarity = document.createElement('p');
