@@ -19,7 +19,6 @@ window.onload = () => {
 
   for (const rarity of rarityOrder) {
     const items = grouped[rarity];
-    if (!items.length) continue;
 
     const rarityBox = document.createElement('div');
     rarityBox.className = 'rarity-group';
@@ -37,8 +36,14 @@ window.onload = () => {
 
     const list = document.createElement('div');
     list.className = 'item-list';
+    if (!items.length) {
+      const placeholder = document.createElement('p');
+      placeholder.textContent = 'No items yet.';
+      placeholder.style.color = '#666';
+      list.appendChild(placeholder);
+    }
 
-    items.forEach((item, idx) => {
+    items.forEach(item => {
       const p = document.createElement('p');
       const newBadge = item.isNew ? '<span class="new-badge">NEW</span>' : '';
       p.innerHTML = `${newBadge}<span class="item-name ${rarity}">${item.name}${item.refine > 0 ? ' +' + item.refine : ''}</span>`;
