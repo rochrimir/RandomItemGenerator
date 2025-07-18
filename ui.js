@@ -15,10 +15,12 @@ function renderItemDisplay(item, container = null) {
   const statsList = document.createElement('ul');
 
   if (item.stats && Array.isArray(item.stats)) {
+    console.log('Rendering stats for:', item.name, item.stats);
+
     const order = ['primary', 'buff', 'unique', 'skill'];
     for (const type of order) {
-      const positives = item.stats.filter(s => s.type === type && s.value > 0);
-      const negatives = item.stats.filter(s => s.type === type && s.value < 0);
+      const positives = item.stats.filter(s => s.type === type && Number(s.value) > 0);
+      const negatives = item.stats.filter(s => s.type === type && Number(s.value) < 0);
 
       for (const statObj of positives) {
         const li = document.createElement('li');
@@ -36,16 +38,19 @@ function renderItemDisplay(item, container = null) {
     }
   }
 
-  const reprintBtn = document.createElement('button');
-  reprintBtn.textContent = 'Re-print';
-  reprintBtn.addEventListener('click', () => {
-    renderItemDisplay(item, displayBox);
-  });
-
   displayBox.appendChild(title);
   displayBox.appendChild(rarity);
   displayBox.appendChild(statsList);
-  displayBox.appendChild(reprintBtn);
+
+  // Only show reprint button in collection view
+  if (container && container.id === 'itemDetails') {
+    const reprintBtn = document.createElement('button');
+    reprintBtn.textContent = 'Re-print';
+    reprintBtn.addEventListener('click', () => {
+      renderItemDisplay(item, displayBox);
+    });
+    displayBox.appendChild(reprintBtn);
+  }
 }
 
 function capitalize(str) {
