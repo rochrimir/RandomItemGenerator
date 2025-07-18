@@ -46,7 +46,7 @@ function renderGeneratedItem(item, container) {
 
 function renderHistoryEntry(entry) {
   const item = entry.item;
-  const refine = item.refine > 0 ? ` +${item.refine}` : '';
+  const refine = ` +${item.refine}`;
   return `${entry.username} generated [${item.rarity}] ${item.name}${refine}`;
 }
 
