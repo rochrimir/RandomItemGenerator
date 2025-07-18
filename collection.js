@@ -8,22 +8,27 @@ window.onload = () => {
 
   const key = `collection_${username}`;
   const data = JSON.parse(localStorage.getItem(key)) || [];
-  const grouped = {};
+
+  const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'unique'];
+  const grouped = Object.fromEntries(rarityOrder.map(r => [r, []]));
 
   for (const item of data) {
-    if (!grouped[item.rarity]) grouped[item.rarity] = [];
-    grouped[item.rarity].push(item);
+    const r = item.rarity.toLowerCase();
+    if (grouped[r]) grouped[r].push(item);
   }
 
-  for (const rarity of Object.keys(grouped)) {
+  for (const rarity of rarityOrder) {
+    const items = grouped[rarity];
+    if (!items.length) continue;
+
     const rarityBox = document.createElement('div');
     rarityBox.className = 'rarity-group';
 
     const header = document.createElement('div');
-    header.className = 'rarity-header';
-    header.innerHTML = `<span>${rarity}</span>`;
+    header.className = `rarity-header ${rarity}`;
+    header.innerHTML = `<span>${capitalize(rarity)}</span>`;
 
-    const unseenCount = grouped[rarity].filter(i => i.isNew).length;
+    const unseenCount = items.filter(i => i.isNew).length;
     const badge = document.createElement('span');
     badge.className = 'badge';
     badge.textContent = unseenCount;
@@ -33,19 +38,20 @@ window.onload = () => {
     const list = document.createElement('div');
     list.className = 'item-list';
 
-    grouped[rarity].forEach((item, idx) => {
+    items.forEach((item, idx) => {
       const p = document.createElement('p');
       const newBadge = item.isNew ? '<span class="new-badge">NEW</span>' : '';
-      p.innerHTML = `${newBadge}${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
+      p.innerHTML = `${newBadge}<span class="item-name ${rarity}">${item.name}${item.refine > 0 ? ' +' + item.refine : ''}</span>`;
       p.style.cursor = 'pointer';
 
       p.addEventListener('click', () => {
         item.isNew = false;
-        badge.textContent = grouped[rarity].filter(i => i.isNew).length;
+        badge.textContent = items.filter(i => i.isNew).length;
         if (badge.textContent === "0") badge.style.display = 'none';
-        p.innerHTML = `${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
-        detailBox.innerHTML = '';
-        renderGeneratedItem(item, detailBox);
+        p.innerHTML = `<span class="item-name ${rarity}">${item.name}${item.refine > 0 ? ' +' + item.refine : ''}</span>`;
+        if (detailBox) {
+          renderGeneratedItem(item, detailBox);
+        }
         localStorage.setItem(key, JSON.stringify(data));
       });
 
@@ -68,3 +74,7 @@ window.onload = () => {
     };
   }
 };
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
