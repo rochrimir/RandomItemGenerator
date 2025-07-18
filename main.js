@@ -16,7 +16,7 @@ function generateItemName(rarity) {
 
 function renderLoginForm() {
   console.log("Rendering login form");
-  app.innerHTML = `
+  app.innerHTML = \`
     <div class="login-container">
       <h1>RPG Loot Store</h1>
       <input type="text" id="username" placeholder="Username" autocomplete="off" />
@@ -24,14 +24,27 @@ function renderLoginForm() {
       <div class="button-row">
         <button id="loginBtn">Log In</button>
         <button id="signupBtn">Sign Up</button>
+        <button id="languageBtn">Language</button>
       </div>
       <div style="text-align:center; margin-top:15px;">
         <button id="logoutBtn">Log Out</button>
+        <br/>
+        <a href="credits.html" target="_blank" style="color: #aaa; font-size: 12px;">Credits</a>
       </div>
     </div>
-  `;
+  \`;
   import('./auth.js');
   bindLogout();
+  bindLanguageBtn();
+}
+
+function bindLanguageBtn() {
+  const langBtn = document.getElementById('languageBtn');
+  if (langBtn) {
+    langBtn.addEventListener('click', () => {
+      alert('Language feature coming soon.');
+    });
+  }
 }
 
 function bindLogout() {
@@ -45,7 +58,7 @@ function bindLogout() {
 }
 
 function saveItemToCollection(username, item) {
-  const key = `collection_${username}`;
+  const key = \`collection_\${username}\`;
   const data = JSON.parse(localStorage.getItem(key)) || [];
   data.push({ ...item, isNew: true });
   localStorage.setItem(key, JSON.stringify(data));
@@ -53,14 +66,17 @@ function saveItemToCollection(username, item) {
 
 function renderLootGenerator(username) {
   console.log("Rendering loot generator for:", username);
-  app.innerHTML = `
-    <h2>Welcome, ${username}!</h2>
+  app.innerHTML = \`
+    <h2>Welcome, \${username}!</h2>
     <button id="generateBtn">Generate Loot</button>
     <button id="viewCollectionBtn">View Collection</button>
     <button id="logoutBtn">Log Out</button>
     <div id="itemDisplay" style="margin-top: 20px;"></div>
     <div id="historyLog" style="margin-top: 20px;"></div>
-  `;
+    <div style="text-align:center; margin-top:20px;">
+      <a href="credits.html" target="_blank" style="color: #aaa; font-size: 12px;">Credits</a>
+    </div>
+  \`;
 
   document.getElementById('generateBtn').addEventListener('click', () => {
     const rarityPool = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Unique'];
@@ -88,9 +104,9 @@ function renderLootGenerator(username) {
 function addToHistory(username, item) {
   const logBox = document.getElementById('historyLog');
   if (!logBox) return;
-  const refine = item.refine > 0 ? ` +${item.refine}` : '';
+  const refine = item.refine > 0 ? \` +\${item.refine}\` : '';
   const entry = document.createElement('p');
-  entry.textContent = `${username} generated [${item.rarity}] ${item.name}${refine}`;
+  entry.textContent = \`\${username} generated [\${item.rarity}] \${item.name}\${refine}\`;
   logBox.prepend(entry);
   if (logBox.children.length > 5) logBox.removeChild(logBox.lastChild);
 }
