@@ -1,6 +1,4 @@
 
-import { renderGeneratedItem } from './ui.js';
-
 document.addEventListener('DOMContentLoaded', () => {
   const username = localStorage.getItem('currentUser');
   if (!username) {
@@ -53,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const label = document.createElement('span');
       label.textContent = `${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
-      label.className = rarity.toLowerCase();
+      label.className = 'item-name ' + rarity.toLowerCase();
 
       li.appendChild(label);
 
@@ -82,11 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const seen = JSON.parse(localStorage.getItem('seenCollection') || '{}');
     document.querySelectorAll('.rarity-group').forEach(group => {
       const rarity = group.querySelector('h3')?.getAttribute('data-rarity');
+      const items = grouped[rarity] || [];
       const badge = group.querySelector('.badge');
-      const unseen = Array.from(group.querySelectorAll('li')).filter(li => {
-        const id = `${li.textContent.split(' +')[0]}-${Array.from(li.parentNode.children).indexOf(li)}`;
-        return !seen[id];
-      });
+      const unseen = items.filter(item => !seen[item.id]);
       if (badge) {
         if (unseen.length === 0) badge.remove();
         else badge.textContent = unseen.length;
@@ -95,8 +91,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.item-entry').forEach((li, index) => {
       const newTag = li.querySelector('.badge');
-      const id = `${li.textContent.split(' +')[0]}-${index}`;
-      if (newTag && seen[id]) newTag.remove();
+      const label = li.querySelector('span');
+      if (newTag && label) {
+        const name = label.textContent.replace(/\s+\+\d+$/, '');
+        const id = `${name}-${index}`;
+        if (seen[id]) newTag.remove();
+      }
     });
   }
 
@@ -106,23 +106,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const title = document.createElement('h2');
     title.textContent = `${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
+    title.className = 'item-name';
 
     const rarity = document.createElement('p');
     rarity.textContent = item.rarity;
     rarity.classList.add('rarity-label', item.rarity.toLowerCase());
 
     const statList = document.createElement('ul');
-    item.stats.forEach(stat => {
-      const li = document.createElement('li');
-      li.textContent = stat;
-      statList.appendChild(li);
-    });
+    if (item.stats && Array.isArray(item.stats)) {
+      item.stats.forEach(stat => {
+        const li = document.createElement('li');
+        li.textContent = stat;
+        statList.appendChild(li);
+      });
+    }
 
     const reprintBtn = document.createElement('button');
     reprintBtn.textContent = 'Re-print';
     reprintBtn.addEventListener('click', () => {
-      const display = document.getElementById('selected-item-display');
-      renderGeneratedItem(item, display);
+      showItemDetails(item);
     });
 
     display.appendChild(title);
