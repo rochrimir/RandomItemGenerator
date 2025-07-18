@@ -1,15 +1,21 @@
 
 @font-face {
-  font-family: 'Jersey25';
-  src: url('Jersey25-Regular.ttf') format('truetype');
+  font-family: 'Karmatic Arcade';
+  src: url('ka1.ttf') format('truetype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hexenkoetel';
+  src: url('Hexenkotel-7Op7B.ttf') format('truetype');
+  font-display: swap;
 }
 
-body {
-  font-family: 'Jersey25', sans-serif;
-  background-color: #111;
-  color: #fff;
-  margin: 0;
-  padding: 20px;
+body, input, button {
+  font-family: 'Hexenkoetel', sans-serif;
+}
+
+.item-name, .refine-level {
+  font-family: 'Karmatic Arcade', monospace;
 }
 
 .login-container {
@@ -43,7 +49,9 @@ input[type="password"] {
 }
 
 .button-row button {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 button {
