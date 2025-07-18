@@ -1,142 +1,102 @@
-
-document.addEventListener('DOMContentLoaded', () => {
+window.onload = () => {
   const username = localStorage.getItem('currentUser');
   if (!username) {
-    document.body.innerHTML = '<p>Please log in first.</p>';
+    document.body.innerHTML = '<h2>Please log in first.</h2>';
     return;
   }
 
-  const key = `collection_${username}`;
-  const seenKey = "seenCollection";
-  const data = JSON.parse(localStorage.getItem(key)) || [];
-  const seen = JSON.parse(localStorage.getItem(seenKey)) || {};
+  const backButton = document.getElementById('backBtn');
+  if (backButton) {
+    backButton.addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+  }
 
-  const grouped = {};
-  const rarities = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Unique'];
-  rarities.forEach(r => grouped[r] = []);
+  const collectionKey = `collection_${username}`;
+  const collectionData = JSON.parse(localStorage.getItem(collectionKey)) || [];
 
-  data.forEach((item, index) => {
-    const id = `${item.name}-${index}`;
-    item.id = id;
-    if (!(id in seen)) seen[id] = false;
-    grouped[item.rarity]?.push(item);
-  });
+  const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'unique'];
+  const container = document.getElementById('collectionContainer');
 
-  const container = document.getElementById('rarity-folders');
-
-  rarities.forEach(rarity => {
-    const group = grouped[rarity] || [];
-    const section = document.createElement('div');
-    section.classList.add('rarity-group');
+  rarityOrder.forEach(rarity => {
+    const group = document.createElement('div');
+    group.className = 'rarity-group';
 
     const header = document.createElement('h3');
-    header.textContent = rarity;
-    header.className = rarity.toLowerCase();
-    header.setAttribute('data-rarity', rarity);
+    header.textContent = rarity.charAt(0).toUpperCase() + rarity.slice(1);
+    header.className = `rarity-header ${rarity}`;
 
-    const unseenCount = group.filter(item => !seen[item.id]).length;
-    if (unseenCount > 0) {
-      const badge = document.createElement('span');
-      badge.className = 'badge';
-      badge.textContent = unseenCount;
-      header.appendChild(badge);
-    }
-
-    section.appendChild(header);
     const list = document.createElement('ul');
+    list.className = 'item-list';
 
-    group.forEach(item => {
+    const items = collectionData.filter(item => item.rarity.toLowerCase() === rarity);
+    items.forEach(item => {
       const li = document.createElement('li');
-      li.classList.add('item-entry');
-
-      const label = document.createElement('span');
-      label.textContent = `${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
-      label.className = 'item-name ' + rarity.toLowerCase();
-
-      li.appendChild(label);
-
-      if (!seen[item.id]) {
-        const newTag = document.createElement('span');
-        newTag.className = 'badge';
-        newTag.textContent = 'NEW';
-        li.appendChild(newTag);
+      const itemLabel = document.createElement('span');
+      itemLabel.textContent = `${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
+      itemLabel.className = `item-name ${item.rarity.toLowerCase()}`;
+      if (item.isNew) {
+        const badge = document.createElement('span');
+        badge.className = 'new-badge';
+        badge.textContent = 'NEW';
+        li.appendChild(badge);
       }
 
+      li.appendChild(itemLabel);
       li.addEventListener('click', () => {
-        seen[item.id] = true;
-        localStorage.setItem(seenKey, JSON.stringify(seen));
+        item.isNew = false;
+        localStorage.setItem(collectionKey, JSON.stringify(collectionData));
         showItemDetails(item);
-        updateBadges();
       });
 
       list.appendChild(li);
     });
 
-    section.appendChild(list);
-    container.appendChild(section);
+    group.appendChild(header);
+    group.appendChild(list);
+    container.appendChild(group);
   });
+};
 
-  function updateBadges() {
-    const seen = JSON.parse(localStorage.getItem('seenCollection') || '{}');
-    document.querySelectorAll('.rarity-group').forEach(group => {
-      const rarity = group.querySelector('h3')?.getAttribute('data-rarity');
-      const items = grouped[rarity] || [];
-      const badge = group.querySelector('.badge');
-      const unseen = items.filter(item => !seen[item.id]);
-      if (badge) {
-        if (unseen.length === 0) badge.remove();
-        else badge.textContent = unseen.length;
-      }
+function showItemDetails(item) {
+  const display = document.getElementById('itemDetails');
+  display.innerHTML = '';
+
+  const title = document.createElement('h2');
+  title.textContent = `${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
+  title.className = `item-name ${item.rarity.toLowerCase()}`;
+
+  const rarity = document.createElement('p');
+  rarity.className = `rarity-label ${item.rarity.toLowerCase()}`;
+  rarity.textContent = `${capitalize(item.rarity)}${item.group === 'cursed' ? ' (Cursed)' : item.group === 'blessed' ? ' (Blessed)' : ''}`;
+
+  const statsList = document.createElement('ul');
+  const order = ['primary', 'buff', 'unique', 'skill'];
+
+  for (const type of order) {
+    const positives = item.stats.filter(s => s.type === type && s.value > 0);
+    const negatives = item.stats.filter(s => s.type === type && s.value < 0);
+
+    positives.forEach(statObj => {
+      const li = document.createElement('li');
+      const valueStr = statObj.isPercentage ? `+${statObj.value}%` : `+${statObj.value}`;
+      li.textContent = `${valueStr} - ${statObj.stat}`;
+      statsList.appendChild(li);
     });
 
-    document.querySelectorAll('.item-entry').forEach((li, index) => {
-      const newTag = li.querySelector('.badge');
-      const label = li.querySelector('span');
-      if (newTag && label) {
-        const name = label.textContent.replace(/\s+\+\d+$/, '');
-        const id = `${name}-${index}`;
-        if (seen[id]) newTag.remove();
-      }
-    });
-  }
-
-  function showItemDetails(item) {
-    const display = document.getElementById('selected-item-display');
-    display.innerHTML = '';
-
-    const title = document.createElement('h2');
-    title.textContent = `${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
-    title.className = 'item-name';
-
-    const rarity = document.createElement('p');
-    rarity.textContent = item.rarity;
-    rarity.classList.add('rarity-label', item.rarity.toLowerCase());
-
-    const statList = document.createElement('ul');
-    if (item.stats && Array.isArray(item.stats)) {
-      item.stats.forEach(stat => {
-        const li = document.createElement('li');
-        li.textContent = stat;
-        statList.appendChild(li);
-      });
-    }
-
-    const reprintBtn = document.createElement('button');
-    reprintBtn.textContent = 'Re-print';
-    reprintBtn.addEventListener('click', () => {
-      showItemDetails(item);
-    });
-
-    display.appendChild(title);
-    display.appendChild(rarity);
-    display.appendChild(statList);
-    display.appendChild(reprintBtn);
-  }
-
-  const backBtn = document.getElementById('backToMain');
-  if (backBtn) {
-    backBtn.addEventListener('click', () => {
-      window.location.href = 'index.html';
+    negatives.forEach(statObj => {
+      const li = document.createElement('li');
+      const valueStr = statObj.isPercentage ? `${statObj.value}%` : `${statObj.value}`;
+      li.textContent = `${valueStr} - ${statObj.stat}`;
+      statsList.appendChild(li);
     });
   }
-});
+
+  display.appendChild(title);
+  display.appendChild(rarity);
+  display.appendChild(statsList);
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
