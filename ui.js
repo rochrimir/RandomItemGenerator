@@ -22,12 +22,10 @@ function renderGeneratedItem(item, container) {
 
   const refineSpan = document.createElement('span');
   refineSpan.classList.add('refine-level');
-  if (item.refine > 0) {
-    refineSpan.textContent = ' +' + item.refine;
-  }
+  refineSpan.textContent = ` +${item.refine}`;
 
   title.appendChild(nameSpan);
-  if (item.refine > 0) title.appendChild(refineSpan);
+  title.appendChild(refineSpan);
   applyRarityColor(item.rarity, title);
 
   const rarity = document.createElement('p');
