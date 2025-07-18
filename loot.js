@@ -114,3 +114,9 @@ function generateLoot(rarity) {
 const generateStats = generateLoot;
 
 export { generateLoot, generateStats };
+
+function initializeLoot() {
+  console.log("Loot system initialized.");
+}
+
+export { generateLoot, generateStats, initializeLoot };
