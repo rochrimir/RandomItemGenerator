@@ -4,6 +4,44 @@
   <meta charset="UTF-8">
   <title>Loot Collection</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    .rarity-group {
+      margin-bottom: 20px;
+      border: 1px solid #333;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    .rarity-header {
+      font-size: 1.5em;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge {
+      background-color: red;
+      color: white;
+      border-radius: 10px;
+      padding: 2px 8px;
+      font-size: 0.8em;
+      margin-left: 10px;
+    }
+    .item-list {
+      margin-top: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding-left: 20px;
+      display: none;
+    }
+    .new-badge {
+      background-color: red;
+      color: white;
+      font-size: 0.7em;
+      margin-right: 5px;
+      padding: 2px 6px;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
   <button id="backBtn">Back to Main</button>
