@@ -5,22 +5,64 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>RPG Loot Store - Login</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: black;
+      margin: 0;
+    }
+    .login-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 300px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+    }
+    .button-row {
+      display: flex;
+      width: 100%;
+      gap: 8px;
+    }
+    .button-row button {
+      flex: 1;
+      padding: 10px;
+      font-size: 1em;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+    }
+    .credits-link {
+      font-size: 0.9em;
+      color: white;
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
   <div class="login-container">
-    <h1>RPG Loot Store</h1>
+    <h1 style="color:white">RPG Loot Store</h1>
 
     <input type="text" id="username" placeholder="Username" />
     <input type="password" id="password" placeholder="Password" />
 
-    <div class="login-button-row">
+    <div class="button-row">
       <button onclick="handleLogin()">Log In</button>
       <button onclick="handleSignup()">Sign Up</button>
       <button onclick="changeLanguage()">Language</button>
     </div>
 
     <button onclick="logout()">Log Out</button>
-
     <a href="https://chat.openai.com/" target="_blank" class="credits-link">Credits</a>
   </div>
 
