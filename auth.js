@@ -1,54 +1,47 @@
-document.addEventListener('DOMContentLoaded', () => {
-  function bindLoginEvents() {
-    const loginBtn = document.getElementById('loginBtn');
-    const signupBtn = document.getElementById('signupBtn');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
+function handleLogin() {
+  const username = document.getElementById("username")?.value.trim();
+  const password = document.getElementById("password")?.value;
 
-    if (!loginBtn || !signupBtn || !usernameInput || !passwordInput) {
-      return;
-    }
-
-    function redirectToMain() {
-      window.location.href = 'index.html';
-    }
-
-    loginBtn.addEventListener('click', () => {
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value.trim();
-
-      if (username && password) {
-        localStorage.setItem('currentUser', username);
-        redirectToMain();
-      } else {
-        alert('Please enter a username and password');
-      }
-    });
-
-    signupBtn.addEventListener('click', () => {
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value.trim();
-
-      if (username && password) {
-        localStorage.setItem('currentUser', username);
-        alert('Sign up successful!');
-        redirectToMain();
-      } else {
-        alert('Please enter a username and password');
-      }
-    });
+  if (!username || !password) {
+    alert("Please enter both username and password.");
+    return;
   }
 
-  // Retry binding every 100ms until inputs are present (max 10 tries)
-  let attempts = 0;
-  const maxAttempts = 10;
-  const interval = setInterval(() => {
-    if (document.getElementById('username') && document.getElementById('password')) {
-      bindLoginEvents();
-      clearInterval(interval);
-    }
-    if (++attempts >= maxAttempts) {
-      clearInterval(interval);
-    }
-  }, 100);
-});
+  const users = JSON.parse(localStorage.getItem("users")) || {};
+  if (users[username] && users[username] === password) {
+    localStorage.setItem("currentUser", username);
+    window.location.href = "index.html";
+  } else {
+    alert("Invalid username or password.");
+  }
+}
+
+function handleSignup() {
+  const username = document.getElementById("username")?.value.trim();
+  const password = document.getElementById("password")?.value;
+
+  if (!username || !password) {
+    alert("Please enter both username and password to sign up.");
+    return;
+  }
+
+  const users = JSON.parse(localStorage.getItem("users")) || {};
+  if (users[username]) {
+    alert("Username already exists. Please choose a different one.");
+  } else {
+    users[username] = password;
+    localStorage.setItem("users", JSON.stringify(users));
+    alert("Signup successful! You can now log in.");
+    localStorage.setItem("currentUser", username);
+    window.location.href = "index.html";
+  }
+}
+
+function changeLanguage() {
+  alert("Language switching not implemented yet.");
+}
+
+function logout() {
+  localStorage.removeItem("currentUser");
+  location.reload();
+}
