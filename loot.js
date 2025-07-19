@@ -1,4 +1,4 @@
-// Debug patch v11.5 - Guaranteed penalty for cursed, regression-safe
+// Debug patch v11.6 – Cursed Stat Pairing Engine v1
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -24,13 +24,24 @@ const penaltyStats = {
   skill: [...bonusStats.skill]
 };
 
+// New cursed stat pair logic
+const cursedPenaltyPairs = {
+  'lifesteal': { stat: 'hp drain per second', isPercentage: true, type: 'unique' },
+  'magic damage': { stat: 'mana cost', isPercentage: true, type: 'skill' },
+  'critical damage': { stat: 'self damage reflection', isPercentage: true, type: 'unique' },
+  'cast speed': { stat: 'skill duration', isPercentage: true, type: 'skill' },
+  'skill duration': { stat: 'cooldown reduction', isPercentage: true, type: 'buff' },
+  'attack speed': { stat: 'defense', isPercentage: false, type: 'primary' },
+  'movement speed': { stat: 'trip chance', isPercentage: true, type: 'buff' }
+};
+
 function generateNegativeStat(type, usedKeys) {
   let attempts = 0;
   while (attempts < 10) {
     const stat = pickRandom(penaltyStats[type]);
     const key = `${type}-${stat}`;
     if (!usedKeys.has(key)) {
-      const isPercentage = [...bonusStats.buff, ...bonusStats.unique, ...bonusStats.skill].includes(stat);
+      const isPercentage = [...bonusStats.buff, ...bonusStats.unique, ...bonusStats.skill].includes(stat) || stat.includes('%');
       const value = isPercentage ? -getRandomFloat(1, 10) : -getRandomInt(1, 10);
       return { stat, value, isPercentage, type };
     }
@@ -79,6 +90,8 @@ function generateLoot(rarity) {
     common: 0.3, uncommon: 0.3, rare: 0.4, epic: 0.5, legendary: 0.6, unique: 0.7
   }[rarityKey] || 0.3;
 
+  let pairedPenalty = null;
+
   for (const type of bonusOrder) {
     if (bonusAdded >= bonusLimit) break;
     if (Math.random() < bonusChance) {
@@ -90,6 +103,11 @@ function generateLoot(rarity) {
           stats.push({ stat, value: getRandomFloat(5, 15), isPercentage: true, type });
           usedKeys.add(key);
           bonusAdded++;
+
+          // Track for cursed pairing
+          if (group === 'cursed' && !pairedPenalty && cursedPenaltyPairs[stat]) {
+            pairedPenalty = cursedPenaltyPairs[stat];
+          }
           break;
         }
         tries++;
@@ -100,12 +118,29 @@ function generateLoot(rarity) {
   // Step 3: Penalty stat
   let penaltyAdded = false;
   if (group !== 'blessed') {
-    const pool = group === 'normal' ? ['primary'] : ['buff', 'unique', 'skill'];
-    const penaltyType = pickRandom(pool);
-    const penalty = generateNegativeStat(penaltyType, usedKeys);
+    let penalty = null;
+
+    if (group === 'cursed' && pairedPenalty) {
+      const key = `${pairedPenalty.type}-${pairedPenalty.stat}`;
+      if (!usedKeys.has(key)) {
+        penalty = {
+          stat: pairedPenalty.stat,
+          value: pairedPenalty.isPercentage ? -getRandomFloat(1, 10) : -getRandomInt(1, 10),
+          isPercentage: pairedPenalty.isPercentage,
+          type: pairedPenalty.type
+        };
+      }
+    }
+
+    if (!penalty) {
+      const pool = group === 'normal' ? ['primary'] : ['buff', 'unique', 'skill'];
+      const penaltyType = pickRandom(pool);
+      penalty = generateNegativeStat(penaltyType, usedKeys);
+    }
+
     if (penalty) {
       const key = `${penalty.type}-${penalty.stat}`;
-      if (penaltyType === 'primary') {
+      if (penalty.type === 'primary') {
         const primaries = stats.filter(s => s.type === 'primary' && s.value > 0);
         if (primaries.length > 0) {
           const toReplace = pickRandom(primaries);
@@ -116,20 +151,6 @@ function generateLoot(rarity) {
       stats.push(penalty);
       usedKeys.add(key);
       penaltyAdded = true;
-    }
-  }
-
-  // Failsafe: if cursed but no penalty, force inject one
-  if (group === 'cursed' && !penaltyAdded) {
-    const fallbackTypes = ['buff', 'unique', 'skill'];
-    for (const type of fallbackTypes) {
-      const fallback = generateNegativeStat(type, usedKeys);
-      if (fallback) {
-        const key = `${fallback.type}-${fallback.stat}`;
-        stats.push(fallback);
-        usedKeys.add(key);
-        break;
-      }
     }
   }
 
