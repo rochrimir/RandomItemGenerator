@@ -1,3 +1,5 @@
+// TEST: Git tracking works now
+
 import './auth.js';
 import { renderGeneratedItem } from './ui.js';
 import { generateStats, initializeLoot } from './loot.js';
