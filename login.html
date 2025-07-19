@@ -1,26 +1,27 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login - RPG Loot Store</title>
+  <title>RPG Loot Store - Login</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="login-container">
     <h1>RPG Loot Store</h1>
-    <input type="text" id="username" placeholder="Username" maxlength="20" autocomplete="off" />
-    <input type="password" id="password" placeholder="Password" maxlength="20" autocomplete="off" />
-    <div class="login-buttons">
+
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+
+    <div class="login-button-row">
       <button onclick="handleLogin()">Log In</button>
       <button onclick="handleSignup()">Sign Up</button>
+      <button onclick="changeLanguage()">Language</button>
     </div>
-    <div class="login-footer">
-      <button onclick="changeLanguage()">🌐</button>
-      <a href="credits.html">Credits</a>
-      <button onclick="logout()">Log Out</button>
-    </div>
+
+    <button onclick="logout()">Log Out</button>
+
+    <a href="https://chat.openai.com/" target="_blank" class="credits-link">Credits</a>
   </div>
 
   <script src="auth.js"></script>
