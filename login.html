@@ -1,21 +1,28 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RPG Loot Store Login</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Login - RPG Loot Store</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="login-body">
+<body>
   <div class="login-container">
-    <h2>Welcome to RPG Loot Store</h2>
-    <input type="text" id="login-username" placeholder="Username" />
-    <input type="password" id="login-password" placeholder="Password" />
+    <h1>RPG Loot Store</h1>
+    <input type="text" id="username" placeholder="Username" maxlength="20" autocomplete="off" />
+    <input type="password" id="password" placeholder="Password" maxlength="20" autocomplete="off" />
     <div class="login-buttons">
-      <button onclick="handleLogin(document.getElementById('login-username').value, document.getElementById('login-password').value)">Log In</button>
-      <button onclick="handleSignup(document.getElementById('login-username').value, document.getElementById('login-password').value)">Sign Up</button>
+      <button onclick="handleLogin()">Log In</button>
+      <button onclick="handleSignup()">Sign Up</button>
+    </div>
+    <div class="login-footer">
+      <button onclick="changeLanguage()">🌐</button>
+      <a href="credits.html">Credits</a>
+      <button onclick="logout()">Log Out</button>
     </div>
   </div>
-  <script src="script.js"></script>
+
+  <script src="auth.js"></script>
 </body>
 </html>
