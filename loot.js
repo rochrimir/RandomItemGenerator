@@ -225,6 +225,20 @@ function generateLoot(rarity) {
     group
   };
 
+  
+  // Final Cursed Group Enforcement: At least one negative primary stat
+  if (group === 'cursed') {
+    const hasNegativePrimary = stats.some(s => s.type === 'primary' && s.value < 0);
+    if (!hasNegativePrimary) {
+      const positivePrimaries = stats.filter(s => s.type === 'primary' && s.value > 0);
+      if (positivePrimaries.length > 0) {
+        const toInvert = pickRandom(positivePrimaries);
+        toInvert.value = -Math.abs(toInvert.value);
+        console.log("DEBUG: Enforced cursed primary penalty:", toInvert);
+      }
+    }
+  }
+
   console.log("DEBUG: Final generated item →", item);
   return item;
 }
@@ -323,6 +337,20 @@ function generateLoot(rarity) {
     stats,
     group
   };
+
+  
+  // Final Cursed Group Enforcement: At least one negative primary stat
+  if (group === 'cursed') {
+    const hasNegativePrimary = stats.some(s => s.type === 'primary' && s.value < 0);
+    if (!hasNegativePrimary) {
+      const positivePrimaries = stats.filter(s => s.type === 'primary' && s.value > 0);
+      if (positivePrimaries.length > 0) {
+        const toInvert = pickRandom(positivePrimaries);
+        toInvert.value = -Math.abs(toInvert.value);
+        console.log("DEBUG: Enforced cursed primary penalty:", toInvert);
+      }
+    }
+  }
 
   console.log("DEBUG: Final generated item →", item);
   return item;
