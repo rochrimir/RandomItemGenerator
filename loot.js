@@ -1,4 +1,4 @@
-// Debug patch v11.3 - Enforce exact primary + total stat counts
+// Debug patch v11.4 - Fix rarity normalization for stat count lookup
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -32,6 +32,7 @@ function generateNegativeStat(type) {
 }
 
 function generateLoot(rarity) {
+  const rarityKey = rarity.toLowerCase(); // Fix for case mismatch
   const statCounts = {
     common: 3,
     uncommon: 4,
@@ -41,7 +42,7 @@ function generateLoot(rarity) {
     unique: 8
   };
 
-  const primaryTarget = statCounts[rarity];
+  const primaryTarget = statCounts[rarityKey];
   let stats = [];
   let usedKeys = new Set();
 
@@ -66,10 +67,10 @@ function generateLoot(rarity) {
   // Step 2: Bonus stats
   const bonusOrder = ['buff', 'unique', 'skill'];
   let bonusAdded = 0;
-  const bonusLimit = rarity === 'common' ? 1 : bonusOrder.length;
+  const bonusLimit = rarityKey === 'common' ? 1 : bonusOrder.length;
   const bonusChance = {
     common: 0.3, uncommon: 0.3, rare: 0.4, epic: 0.5, legendary: 0.6, unique: 0.7
-  }[rarity] || 0.3;
+  }[rarityKey] || 0.3;
 
   for (const type of bonusOrder) {
     if (bonusAdded >= bonusLimit) break;
