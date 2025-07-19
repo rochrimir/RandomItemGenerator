@@ -1,4 +1,4 @@
-// Debug patch v11.2b - Fixed template string syntax for breakdown log
+// Debug patch v11.3 - Enforce exact primary + total stat counts
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -41,7 +41,7 @@ function generateLoot(rarity) {
     unique: 8
   };
 
-  const primaryCount = statCounts[rarity];
+  const primaryTarget = statCounts[rarity];
   let stats = [];
   let usedKeys = new Set();
 
@@ -50,8 +50,9 @@ function generateLoot(rarity) {
   if (roll < 0.20) group = 'cursed';
   else if (roll < 0.65) group = 'normal';
 
+  // Step 1: Primary stats
   let attempts = 0;
-  while (stats.filter(s => s.type === 'primary').length < primaryCount && attempts < 30) {
+  while (stats.filter(s => s.type === 'primary').length < primaryTarget && attempts < 30) {
     const stat = pickRandom(primaryStats);
     const key = `primary-${stat}`;
     if (!usedKeys.has(key)) {
@@ -62,6 +63,7 @@ function generateLoot(rarity) {
     attempts++;
   }
 
+  // Step 2: Bonus stats
   const bonusOrder = ['buff', 'unique', 'skill'];
   let bonusAdded = 0;
   const bonusLimit = rarity === 'common' ? 1 : bonusOrder.length;
@@ -88,6 +90,7 @@ function generateLoot(rarity) {
     }
   }
 
+  // Step 3: Penalty stat
   let penaltyAdded = false;
   if (group !== 'blessed') {
     const pool = group === 'normal' ? ['primary'] : ['buff', 'unique', 'skill'];
@@ -111,25 +114,38 @@ function generateLoot(rarity) {
     }
   }
 
-  // Enforce required total stat count
-  const requiredCount = statCounts[rarity];
+  // Step 4: Ensure required number of primary stats (after penalty replacement)
+  let primaryNow = stats.filter(s => s.type === 'primary').length;
   let safety = 0;
-  while (stats.length < requiredCount && safety < 20) {
+  while (primaryNow < primaryTarget && safety < 30) {
     const stat = pickRandom(primaryStats);
     const key = `primary-${stat}`;
     if (!usedKeys.has(key)) {
       stats.push({ stat, value: getRandomInt(5, 20), isPercentage: false, type: 'primary' });
       usedKeys.add(key);
-      console.log("DEBUG: Filled extra primary stat:", stat);
+      primaryNow++;
+      console.log("DEBUG: Refilled primary stat:", stat);
     }
     safety++;
   }
 
-  const primaryTotal = stats.filter(s => s.type === 'primary').length;
-  const bonusTotal = stats.filter(s => s.type === 'buff' || s.type === 'unique' || s.type === 'skill').length;
-  const penaltyTotal = stats.filter(s => s.value < 0).length;
+  // Step 5: Enforce total stat count matches rarity
+  while (stats.length < primaryTarget && safety < 50) {
+    const stat = pickRandom(primaryStats);
+    const key = `primary-${stat}`;
+    if (!usedKeys.has(key)) {
+      stats.push({ stat, value: getRandomInt(5, 20), isPercentage: false, type: 'primary' });
+      usedKeys.add(key);
+      console.log("DEBUG: Filled stat slot to meet total:", stat);
+    }
+    safety++;
+  }
 
-  console.log("DEBUG: Final stat breakdown → primary: " + primaryTotal + ", bonus: " + bonusTotal + ", penalty: " + penaltyTotal);
+  const totalPrimary = stats.filter(s => s.type === 'primary').length;
+  const totalBonus = stats.filter(s => ['buff', 'unique', 'skill'].includes(s.type)).length;
+  const totalPenalty = stats.filter(s => s.value < 0).length;
+
+  console.log("DEBUG: Final stat breakdown → primary: " + totalPrimary + "/" + primaryTarget + ", bonus: " + totalBonus + ", penalty: " + totalPenalty);
 
   const refine = Math.random() < 0.5 ? getRandomInt(1, 10) : 0;
 
