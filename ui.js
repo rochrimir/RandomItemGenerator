@@ -1,5 +1,5 @@
 
-// ui.js – Handles DOM rendering
+// ui.js – Handles DOM rendering for loot items and history
 
 export function renderItem(item) {
   const display = document.getElementById('item-display');
@@ -26,4 +26,16 @@ export function renderItem(item) {
   display.appendChild(name);
   display.appendChild(rarity);
   display.appendChild(statList);
+}
+
+export function updateHistoryLog(username, item) {
+  const history = document.getElementById('history-log');
+  const entry = document.createElement('li');
+  entry.textContent = `${username} generated ${item.rarity} ${item.name}${item.refine > 0 ? ' +' + item.refine : ''}`;
+  history.prepend(entry);
+
+  // Limit to 5 most recent
+  while (history.children.length > 5) {
+    history.removeChild(history.lastChild);
+  }
 }
