@@ -1,4 +1,4 @@
-// Debug patch v11.1 - Strict stat count enforcement
+// Debug patch v11.2 - Guaranteed stat count and full breakdown
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -45,15 +45,13 @@ function generateLoot(rarity) {
   let stats = [];
   let usedKeys = new Set();
 
-  // Group roll
   const roll = Math.random();
   let group = 'blessed';
   if (roll < 0.20) group = 'cursed';
   else if (roll < 0.65) group = 'normal';
 
-  // Add primary stats
   let attempts = 0;
-  while (stats.filter(s => s.type === 'primary').length < primaryCount && attempts < 20) {
+  while (stats.filter(s => s.type === 'primary').length < primaryCount && attempts < 30) {
     const stat = pickRandom(primaryStats);
     const key = `primary-${stat}`;
     if (!usedKeys.has(key)) {
@@ -64,7 +62,6 @@ function generateLoot(rarity) {
     attempts++;
   }
 
-  // Add bonus stats (Common = 30% chance total for 1 bonus max)
   const bonusOrder = ['buff', 'unique', 'skill'];
   let bonusAdded = 0;
   const bonusLimit = rarity === 'common' ? 1 : bonusOrder.length;
@@ -91,7 +88,7 @@ function generateLoot(rarity) {
     }
   }
 
-  // Add penalty stat if not blessed
+  let penaltyAdded = false;
   if (group !== 'blessed') {
     const pool = group === 'normal' ? ['primary'] : ['buff', 'unique', 'skill'];
     const penaltyType = pickRandom(pool);
@@ -110,13 +107,14 @@ function generateLoot(rarity) {
       stats.push(penalty);
       usedKeys.add(key);
       console.log("DEBUG: Added penalty stat:", penalty.stat);
+      penaltyAdded = true;
     }
   }
 
-  // Ensure minimum stat count based on rarity
-  const required = statCounts[rarity];
+  // Enforce required total stat count
+  const requiredCount = statCounts[rarity];
   let safety = 0;
-  while (stats.length < required && safety < 20) {
+  while (stats.length < requiredCount && safety < 20) {
     const stat = pickRandom(primaryStats);
     const key = `primary-${stat}`;
     if (!usedKeys.has(key)) {
@@ -126,6 +124,12 @@ function generateLoot(rarity) {
     }
     safety++;
   }
+
+  const primaryTotal = stats.filter(s => s.type === 'primary').length;
+  const bonusTotal = stats.filter(s => s.type === 'buff' || s.type === 'unique' || s.type === 'skill').length;
+  const penaltyTotal = stats.filter(s => s.value < 0).length;
+
+  console.log(\`DEBUG: Final stat breakdown → primary: \${primaryTotal}, bonus: \${bonusTotal}, penalty: \${penaltyTotal}\`);
 
   const refine = Math.random() < 0.5 ? getRandomInt(1, 10) : 0;
 
