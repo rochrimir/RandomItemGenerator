@@ -1,27 +1,43 @@
-function parseFormatString(format, context) {
-  return format.replace(/\[([^\]]+)\]/g, (_, token) => {
-    if (token === "JobSuffix's") return getRandomElement(context.jobSuffixes) + "'s";
-    if (token === 'JobSuffix') return getRandomElement(context.jobSuffixes);
-    if (token === 'StatDescriptor') return context.statDescriptor || '';
-    if (token === 'Effect') return context.effect || '';
-    if (token === 'General') return getRandomElement(context.prefixes) || '';
-    if (token === 'Base') return getRandomElement(context.bases) || '';
-    if (token === 'Suffix') return getRandomElement(context.suffixes) || '';
-    return '';
-  }).replace(/\s+/g, ' ').trim();
-}
 
-function generateFullName(rarity, mainStat, effectKey) {
-  if (!namingDB || !namingDB.naming_format_weights) return '[Name Unavailable]';
-  const formatOptions = namingDB.naming_format_weights[rarity];
-  const format = weightedRandom(formatOptions);
-  const context = {
-    prefixes: namingDB.prefixes[rarity] || [],
-    bases: namingDB.bases[rarity] || [],
-    suffixes: namingDB.suffixes[rarity] || [],
-    statDescriptor: namingDB.statDescriptors[mainStat.toLowerCase()] || '',
-    jobSuffixes: namingDB.jobSuffixes[mainStat.toLowerCase()] || [],
-    effect: getRandomElement(namingDB.effectDescriptors[effectKey] || [])
-  };
-  return parseFormatString(format, context);
+// naming.js – Required exports for loot system
+
+export const primaryStats = [
+  "strength", "dexterity", "intelligence", "vitality", "defense"
+];
+
+export const bonusStats = {
+  buff: ["attack speed", "cast speed", "movement speed", "evasion", "resistance"],
+  unique: ["lifesteal", "critical damage", "mana cost", "hp regen"],
+  skill: ["skill duration", "cooldown reduction", "summon damage"]
+};
+
+// Pairs: cursed bonus → meaningful penalty
+export const cursedPenaltyPairs = {
+  "lifesteal": { stat: "hp drain", type: "buff", isPercentage: true },
+  "critical damage": { stat: "damage reflection", type: "buff", isPercentage: true },
+  "cast speed": { stat: "spell cost", type: "unique", isPercentage: true },
+  "movement speed": { stat: "trip chance", type: "buff", isPercentage: true },
+  "resistance": { stat: "vulnerability", type: "buff", isPercentage: true },
+  "skill duration": { stat: "skill backlash", type: "skill", isPercentage: true },
+  "summon damage": { stat: "summon disobedience", type: "skill", isPercentage: true }
+};
+
+export function generateNegativeStat(type, usedKeys = new Set()) {
+  const pool = {
+    primary: primaryStats,
+    buff: bonusStats.buff,
+    unique: bonusStats.unique,
+    skill: bonusStats.skill
+  }[type] || [];
+
+  const available = pool.filter(stat => !usedKeys.has(`${type}-${stat}`));
+  if (available.length === 0) return null;
+
+  const stat = available[Math.floor(Math.random() * available.length)];
+  const isPercentage = (type !== "primary");
+  const value = isPercentage
+    ? -Math.round((Math.random() * 5 + 1) * 100) / 100  // -1% to -6%
+    : -Math.floor(Math.random() * 10 + 1);              // -1 to -10
+
+  return { stat, value, isPercentage, type };
 }
