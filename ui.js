@@ -25,14 +25,14 @@ function renderItemDisplay(item, container = null) {
       for (const statObj of positives) {
         const li = document.createElement('li');
         const valueStr = statObj.isPercentage ? `+${statObj.value}%` : `+${statObj.value}`;
-        li.textContent = `${valueStr} - ${statObj.stat}`;
+        li.textContent = `${valueStr} ${statObj.stat}`;
         statsList.appendChild(li);
       }
 
       for (const statObj of negatives) {
         const li = document.createElement('li');
         const valueStr = statObj.isPercentage ? `${statObj.value}%` : `${statObj.value}`;
-        li.textContent = `${valueStr} - ${statObj.stat}`;
+        li.textContent = `${valueStr} ${statObj.stat}`;
         statsList.appendChild(li);
       }
     }
@@ -42,7 +42,6 @@ function renderItemDisplay(item, container = null) {
   displayBox.appendChild(rarity);
   displayBox.appendChild(statsList);
 
-  // Only show reprint button in collection view
   if (container && container.id === 'itemDetails') {
     const reprintBtn = document.createElement('button');
     reprintBtn.textContent = 'Re-print';
