@@ -1,4 +1,4 @@
-// Debug patch v11.2 - Guaranteed stat count and full breakdown
+// Debug patch v11.2b - Fixed template string syntax for breakdown log
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -129,7 +129,7 @@ function generateLoot(rarity) {
   const bonusTotal = stats.filter(s => s.type === 'buff' || s.type === 'unique' || s.type === 'skill').length;
   const penaltyTotal = stats.filter(s => s.value < 0).length;
 
-  console.log(\`DEBUG: Final stat breakdown → primary: \${primaryTotal}, bonus: \${bonusTotal}, penalty: \${penaltyTotal}\`);
+  console.log("DEBUG: Final stat breakdown → primary: " + primaryTotal + ", bonus: " + bonusTotal + ", penalty: " + penaltyTotal);
 
   const refine = Math.random() < 0.5 ? getRandomInt(1, 10) : 0;
 
